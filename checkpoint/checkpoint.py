@@ -55,10 +55,7 @@ class CheckpointManager:
                 checkpoint.path = checkpoint.create_path()
             elif checkpoint.path == "remove checkpoint":
                 checkpoint.path = "go"
-                while (
-                    checkpoint.path := checkpoint.ask_path("Choose checkpoint to remove", "quit") is not None 
-                    and checkpoint.path != "quit"
-                ):
+                while path := checkpoint.ask_path("Choose checkpoint to remove", "quit") not in [None, "quit"]:
                     checkpoint.path.unlink()
                 checkpoint.path = None
             else:
