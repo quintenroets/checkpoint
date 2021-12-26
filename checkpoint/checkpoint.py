@@ -21,7 +21,7 @@ class Checkpoint:
         extra_options_dict = {o.capitalize(): o for o in extra_options}
         checkpoint_paths = CheckpointManager.get_checkpoints(self.categorie)
         options = {c.stem.capitalize(): c for c in checkpoint_paths}
-        name = Gui.ask(title, options | extra_options_dict) if options else self.create_path().name
+        name = Gui.ask(title, options | extra_options_dict) if options else self.create_path()
         if not name:
             checkpoint_path = None
         elif name not in extra_options:
@@ -37,9 +37,7 @@ class Checkpoint:
         if name:
             path = root / self.categorie / name.lower()
             path.save({"urls": [], "commands": []})
-        else:
-            path = None
-        return path
+        return name
 
 
 class CheckpointManager:
