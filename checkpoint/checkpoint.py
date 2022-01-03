@@ -1,10 +1,10 @@
 import os
+from .path import Path
 import sys
 
 from libs.errorhandler import ErrorHandler
 from libs.gui import Gui
 from libs.cli import Cli
-from libs.path import Path
 
 root = Path.assets / "checkpoints"
 
