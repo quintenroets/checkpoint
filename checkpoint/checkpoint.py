@@ -1,5 +1,5 @@
 import os
-from .path import Path
+from plib import Path
 import sys
 
 from libs.errorhandler import ErrorHandler
