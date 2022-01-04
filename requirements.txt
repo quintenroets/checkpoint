@@ -1,2 +1,2 @@
-libs @ git+https://@github.com/quintenroets/libs
-superpathlib @ git+https://@github.com/quintenroets/superpathlib
+libs @ git+https://github.com/quintenroets/libs
+superpathlib @ git+https://github.com/quintenroets/superpathlib
