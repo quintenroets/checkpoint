@@ -106,7 +106,10 @@ class CheckpointManager:
             option = "--directory" if item_type == "folder" else ""
             initdir = Path.docs
             command = f'zenity --file-selection {option} --filename="{initdir}"/ --multiple --separator={separator}'
-            new_items = Cli.get(command).split(separator)
+            new_items = Cli.get(command)
+            
+            if new_items:
+                new_items = new_items.split(separator)
             
             if new_items:
                 for item in new_items:
