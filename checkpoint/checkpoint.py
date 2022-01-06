@@ -67,14 +67,17 @@ class CheckpointManager:
 
     @staticmethod
     def open_checkpoint(checkpoint):
+        Cli.start(checkpoint["urls"])
+        
         console_keyword = "__CONSOLE__"
         Cli.run(
             (it.replace(console_keyword, "") for it in checkpoint["commands"] if it.startwith(console_keyword)),
             console=True
         )
-        commands = [c for c in checkpoint["commands"] if not c.startswith("__CONSOLE__")]
-        commands += [f'xdg-open "{u}"' for u in checkpoint["urls"]]
-        Cli.run(commands, wait=False)
+        Cli.run(
+            (c for c in checkpoint["commands"] if not c.startswith(console_keyword)),
+            wait=False
+        )
 
     @staticmethod
     def edit_checkpoint(checkpoint):
