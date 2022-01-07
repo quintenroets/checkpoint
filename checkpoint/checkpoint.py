@@ -134,7 +134,7 @@ class CheckpointManager:
     @staticmethod
     def get_checkpoints(category):
         checkpoints = (root / category).glob("*.yaml")
-        checkpoints = sorted(checkpoints, key=lambda path: -path.stat().st_mtime)
+        checkpoints = sorted(checkpoints, key=lambda path: -path.mtime)
         return checkpoints
 
 
