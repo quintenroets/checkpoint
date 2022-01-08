@@ -1,12 +1,15 @@
 import os
-from plib import Path
+from plib import Path as BasePath
 import sys
 
 from libs.errorhandler import ErrorHandler
 from libs.gui import Gui
 from libs.cli import Cli
 
-root = Path.assets / "checkpoints"
+
+class Path(BasePath):
+    checkpoints = BasePath.assets / "checkpoints"
+
 
 class Checkpoint:
     def __init__(self, categorie, choose=False):
@@ -25,7 +28,7 @@ class Checkpoint:
         if not name:
             checkpoint_path = None
         elif name not in extra_options:
-            checkpoint_path = root / self.categorie / name
+            checkpoint_path = Path.checkpoints / self.categorie / name
             checkpoint_path.touch(exist_ok=True) # mark as most recent
         else:
             checkpoint_path = name
@@ -35,7 +38,7 @@ class Checkpoint:
     def create_path(self):
         name = Gui.ask("Give new checkpoint name")
         if name:
-            path = root / self.categorie / name.lower()
+            path = Path.checkpoints / self.categorie / name.lower()
             path.save({"urls": [], "commands": []})
         return name
 
@@ -133,7 +136,7 @@ class CheckpointManager:
 
     @staticmethod
     def get_checkpoints(category):
-        checkpoints = (root / category).glob("*.yaml")
+        checkpoints = (Path.checkpoints / category).glob("*.yaml")
         checkpoints = sorted(checkpoints, key=lambda path: -path.mtime)
         return checkpoints
 
