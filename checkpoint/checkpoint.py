@@ -72,14 +72,11 @@ class CheckpointManager:
         cli.urlopen(checkpoint["urls"])
         
         console_keyword = "__CONSOLE__"
-        cli.run(
-            (it.replace(console_keyword, "") for it in checkpoint["commands"] if it.startwith(console_keyword)),
-            console=True
-        )
-        cli.run(
-            (c for c in checkpoint["commands"] if not c.startswith(console_keyword)),
-            wait=False
-        )
+        for command in checkpoint['commands']:
+            if command.startswith(console_keyword):
+                cli.run(command.replace(console_keyword, ''), console=True)
+            else:
+                cli.start(command)
 
     @staticmethod
     def edit_checkpoint(checkpoint):
