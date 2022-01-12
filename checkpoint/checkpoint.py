@@ -1,10 +1,9 @@
+import cli
 import os
 from plib import Path as BasePath
 import sys
 
-from libs.errorhandler import ErrorHandler
 from libs.gui import Gui
-from libs.cli import Cli
 
 
 class Path(BasePath):
@@ -70,14 +69,14 @@ class CheckpointManager:
 
     @staticmethod
     def open_checkpoint(checkpoint):
-        Cli.start(checkpoint["urls"])
+        cli.urlopen(checkpoint["urls"])
         
         console_keyword = "__CONSOLE__"
-        Cli.run(
+        cli.run(
             (it.replace(console_keyword, "") for it in checkpoint["commands"] if it.startwith(console_keyword)),
             console=True
         )
-        Cli.run(
+        cli.run(
             (c for c in checkpoint["commands"] if not c.startswith(console_keyword)),
             wait=False
         )
@@ -109,7 +108,7 @@ class CheckpointManager:
             option = "--directory" if item_type == "folder" else ""
             initdir = Path.docs
             command = f'zenity --file-selection {option} --filename="{initdir}"/ --multiple --separator={separator}'
-            new_items = Cli.get(command)
+            new_items = cli.get(command)
             
             if new_items:
                 new_items = new_items.split(separator)
@@ -142,7 +141,7 @@ class CheckpointManager:
 
 
 def main():
-    with ErrorHandler():
+    with cli.errorhandler():
         args = sys.argv[1:]
 
         choose = "choose" in args
