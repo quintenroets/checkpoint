@@ -6,13 +6,16 @@ import sys
 from plib import Path as BasePath
 
 
-class Path(BasePath):
-    checkpoints = BasePath.assets / "checkpoints"
-    
+class Path(BasePath):    
     def load(self):
         content = super().load()
         content = collections.defaultdict(lambda: [], content)
         return content
+    
+    @classmethod
+    @property
+    def checkpoints(cls):
+        return cls.assets / 'checkpoints'
 
 
 class Checkpoint:
