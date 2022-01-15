@@ -1,4 +1,5 @@
 import cli
+import collections
 import gui
 import os
 import sys
@@ -7,6 +8,11 @@ from plib import Path as BasePath
 
 class Path(BasePath):
     checkpoints = BasePath.assets / "checkpoints"
+    
+    def load(self):
+        content = super().load()
+        content = collections.defaultdict(lambda: [], content)
+        return content
 
 
 class Checkpoint:
@@ -37,7 +43,7 @@ class Checkpoint:
         name = gui.ask("Give new checkpoint name")
         if name:
             path = Path.checkpoints / self.categorie / name.lower()
-            path.save({'urls': [], 'commands': [], 'console'})
+            path.touch()
         return name
 
 
@@ -62,7 +68,7 @@ class CheckpointManager:
 
         if checkpoint.path is not None:
             content = checkpoint.path.load()
-            if not any([v for v in content.values()])
+            if not any([v for v in content.values()]):
                 CheckpointManager.edit_checkpoint(checkpoint)
             CheckpointManager.open_checkpoint(content)
 
@@ -81,8 +87,8 @@ class CheckpointManager:
 
         item = "Go"
         while item and item != "Quit":
-            items = content["urls"] + content["commands"]
-            item = gui.ask("Choose item to remove or add new item", ["Add new"] + items + ["Quit"])
+            values = [v for values in content for v in values]
+            item = gui.ask("Choose item to remove or add new item", ["Add new"] + values + ["Quit"])
             if item == "Add new":
                 CheckpointManager.add_item(content)
             else:
