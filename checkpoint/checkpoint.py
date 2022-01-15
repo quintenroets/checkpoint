@@ -37,7 +37,7 @@ class Checkpoint:
         name = gui.ask("Give new checkpoint name")
         if name:
             path = Path.checkpoints / self.categorie / name.lower()
-            path.save({"urls": [], "commands": []})
+            path.save({'urls': [], 'commands': [], 'console'})
         return name
 
 
@@ -62,7 +62,7 @@ class CheckpointManager:
 
         if checkpoint.path is not None:
             content = checkpoint.path.load()
-            if not content["urls"] and not content["commands"]:
+            if not any([v for v in content.values()])
                 CheckpointManager.edit_checkpoint(checkpoint)
             CheckpointManager.open_checkpoint(content)
 
@@ -70,12 +70,10 @@ class CheckpointManager:
     def open_checkpoint(checkpoint):
         cli.urlopen(checkpoint["urls"])
         
-        console_keyword = "__CONSOLE__"
         for command in checkpoint['commands']:
-            if command.startswith(console_keyword):
-                cli.run(command.replace(console_keyword, ''), console=True)
-            else:
-                cli.start(command)
+            cli.start(command)
+        for command in checkpoint['konsole']:
+            cli.run(command, console=True)
 
     @staticmethod
     def edit_checkpoint(checkpoint):
@@ -87,10 +85,10 @@ class CheckpointManager:
             item = gui.ask("Choose item to remove or add new item", ["Add new"] + items + ["Quit"])
             if item == "Add new":
                 CheckpointManager.add_item(content)
-            elif item in content["urls"]:
-                content["urls"].remove(item)
-            elif item in content["commands"]:
-                content["commands"].remove(item)
+            else:
+                for k, v in content.items():
+                    if item in v:
+                        v.remove(item)
             checkpoint.path.save(content)
 
 
@@ -113,15 +111,14 @@ class CheckpointManager:
                 for item in new_items:
                     if item.endswith(".ipynb"):
                         new_items.remove(item)
-                        checkpoint["commands"].append(f"__CONSOLE__cd \"{Path(item).parent}\"; jn")
+                        checkpoint['konsole'].append(f'cd \"{Path(item).parent}\"; jn')
                 checkpoint["urls"] += new_items
 
         elif item_type in ["url", "command"]:
             item = gui.ask(f"Give {item_type}")
             if item:
-                if item_type == "command" and gui.ask_yn("Run in console?"):
-                    item = "__CONSOLE__" + item
-                checkpoint[f"{item_type}s"].append(item)
+                store_key = 'konsole' if item_type == 'command' and gui.ask_yn('Run in console?') else f'{item_type}s'
+                checkpoint[store_key].append(item)
                 
     @staticmethod
     def get_recent_path(category):
