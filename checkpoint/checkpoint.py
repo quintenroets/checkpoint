@@ -25,7 +25,7 @@ class Checkpoint:
         if not choose:
             self.path = CheckpointManager.get_recent_path(categorie)
         if self.path is None:
-            self.path = self.ask_path("Choose checkpoint", "edit")
+            self.path = self.ask_path('Choose checkpoint', 'edit')
 
     def ask_path(self, title, *extra_options):
         extra_options_dict = {o.capitalize(): o for o in extra_options}
@@ -43,7 +43,7 @@ class Checkpoint:
         return checkpoint_path
 
     def create_path(self):
-        name = gui.ask("Give new checkpoint name")
+        name = gui.ask('Give new checkpoint name')
         if name:
             path = Path.checkpoints / self.categorie / name.lower()
             path.touch()
@@ -55,15 +55,15 @@ class CheckpointManager:
     def start(category, choose=False):
         checkpoint = Checkpoint(category, choose=choose)
 
-        if checkpoint.path == "edit":
+        if checkpoint.path == 'edit':
             checkpoint.path = checkpoint.ask_path(
-                "Choose checkpoint to edit", "create new checkpoint", "remove checkpoint"
+                'Choose checkpoint to edit', 'create new checkpoint', 'remove checkpoint'
             )
-            if checkpoint.path == "create new checkpoint":
+            if checkpoint.path == 'create new checkpoint':
                 checkpoint.path = checkpoint.create_path()
-            elif checkpoint.path == "remove checkpoint":
-                checkpoint.path = "go"
-                while path := checkpoint.ask_path("Choose checkpoint to remove", "quit") not in [None, "quit"]:
+            elif checkpoint.path == 'remove checkpoint':
+                checkpoint.path = 'go'
+                while path := checkpoint.ask_path('Choose checkpoint to remove', 'quit') not in [None, 'quit']:
                     checkpoint.path.unlink()
                 checkpoint.path = None
             else:
@@ -77,7 +77,7 @@ class CheckpointManager:
 
     @staticmethod
     def open_checkpoint(checkpoint):
-        cli.urlopen(checkpoint["urls"])
+        cli.urlopen(checkpoint['urls'])
         
         for command in checkpoint['commands']:
             cli.start(command)
@@ -88,11 +88,11 @@ class CheckpointManager:
     def edit_checkpoint(checkpoint):
         content = checkpoint.path.load()
 
-        item = "Go"
-        while item and item != "Quit":
+        item = 'Go'
+        while item and item != 'Quit':
             values = [v for values in content for v in values]
-            item = gui.ask("Choose item to remove or add new item", ["Add new"] + values + ["Quit"])
-            if item == "Add new":
+            item = gui.ask('Choose item to remove or add new item', ['Add new'] + values + ['Quit'])
+            if item == 'Add new':
                 CheckpointManager.add_item(content)
             else:
                 for k, v in content.items():
@@ -103,28 +103,34 @@ class CheckpointManager:
 
     @staticmethod
     def add_item(checkpoint):
-        item_type = gui.ask("Choose item type", ["File", "Folder", "Url", "Command", "Cancel"]).lower()
+        item_type = gui.ask('Choose item type', ['File', 'Folder', 'Url', 'Command', 'Cancel']).lower()
 
-        if item_type in ["file", "folder"]:
-            separator = "###"
-            # add / after initdir to force zenity to go into that folder
-            option = "--directory" if item_type == "folder" else ""
-            initdir = Path.docs
-            command = f'zenity --file-selection {option} --filename="{initdir}"/ --multiple --separator={separator}'
-            new_items = cli.get(command)
+        if item_type in ['file', 'folder']:
+            separator = '###'
+            
+            options = {
+                'file-selection',
+                'multiple',
+                f'filename="{Path.docs}/"',  # add / after initdir to force zenity to go into that folder
+                f'separator={separator}',
+                }
+            if item_type == 'folder':
+                options.add('directory')
+                
+            new_items = cli.get(f'zenity', options)
             
             if new_items:
                 new_items = new_items.split(separator)
             
             if new_items:
                 for item in new_items:
-                    if item.endswith(".ipynb"):
+                    if item.endswith('.ipynb'):
                         new_items.remove(item)
-                        checkpoint['konsole'].append(f'cd \"{Path(item).parent}\"; jn')
-                checkpoint["urls"] += new_items
+                        checkpoint['konsole'].append(f'cd \'{Path(item).parent}\'; jn')
+                checkpoint['urls'] += new_items
 
-        elif item_type in ["url", "command"]:
-            item = gui.ask(f"Give {item_type}")
+        elif item_type in ['url', 'command']:
+            item = gui.ask(f'Give {item_type}')
             if item:
                 store_key = 'konsole' if item_type == 'command' and gui.ask_yn('Run in console?') else f'{item_type}s'
                 checkpoint[store_key].append(item)
@@ -137,7 +143,7 @@ class CheckpointManager:
 
     @staticmethod
     def get_checkpoints(category):
-        checkpoints = (Path.checkpoints / category).glob("*.yaml")
+        checkpoints = (Path.checkpoints / category).glob('*.yaml')
         checkpoints = sorted(checkpoints, key=lambda path: -path.mtime)
         return checkpoints
 
@@ -146,12 +152,12 @@ def main():
     with cli.errorhandler():
         args = sys.argv[1:]
 
-        choose = "choose" in args
+        choose = 'choose' in args
         if choose:
-            args.remove("choose")
-        category = args[-1] if args else "Documents"
+            args.remove('choose')
+        category = args[-1] if args else 'Documents'
         CheckpointManager.start(category, choose)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
