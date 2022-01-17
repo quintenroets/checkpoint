@@ -149,14 +149,13 @@ class CheckpointManager:
 
 
 def main():
-    with cli.errorhandler():
-        args = sys.argv[1:]
+    args = sys.argv[1:]
 
-        choose = 'choose' in args
-        if choose:
-            args.remove('choose')
-        category = args[-1] if args else 'Documents'
-        CheckpointManager.start(category, choose)
+    choose = 'choose' in args
+    if choose:
+        args.remove('choose')
+    category = args[-1] if args else 'Documents'
+    CheckpointManager.start(category, choose)
 
 
 if __name__ == '__main__':
