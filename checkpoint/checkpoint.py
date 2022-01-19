@@ -34,14 +34,18 @@ class Checkpoint:
         extra_options_dict = {o.capitalize(): o for o in extra_options}
         checkpoint_paths = CheckpointManager.get_checkpoints(self.categorie)
         options = {c.stem.capitalize(): c for c in checkpoint_paths}
-        name = gui.ask(title, options | extra_options_dict) if options else self.create_path()
-        if not name:
-            checkpoint_path = None
-        elif name not in extra_options:
-            checkpoint_path = Path.checkpoints / self.categorie / name
-            checkpoint_path.touch(exist_ok=True) # mark as most recent
+        
+        if not options:
+            checkpoint_path = self.create_path()
         else:
-            checkpoint_path = name
+            name = gui.ask(title, options | extra_options_dict)
+            if not name:
+                checkpoint_path = None
+            elif name not in extra_options:
+                checkpoint_path = (Path.checkpoints / self.categorie / name).with_suffix('.yaml')
+                checkpoint_path.touch(exist_ok=True) # mark as most recent
+            else:
+                checkpoint_path = name
         
         return checkpoint_path
 
@@ -50,7 +54,9 @@ class Checkpoint:
         if name:
             path = (Path.checkpoints / self.categorie / name.lower()).with_suffix('.yaml')
             path.touch(exist_ok=True)
-        return name
+        else:
+            path = None
+        return path
 
 
 class CheckpointManager:
@@ -92,7 +98,7 @@ class CheckpointManager:
 
         item = 'Go'
         while item and item != 'Quit':
-            values = [v for values in content for v in values]
+            values = [v for values in content.values() for v in values]
             item = gui.ask('Choose item to remove or add new item', ['Add new'] + values + ['Quit'])
             if item == 'Add new':
                 CheckpointManager.add_item(content)
