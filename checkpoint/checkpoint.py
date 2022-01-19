@@ -85,7 +85,7 @@ class CheckpointManager:
 
     @staticmethod
     def open_checkpoint(checkpoint):
-        cli.urlopen(checkpoint['urls'])
+        cli.urlopen(*checkpoint['urls'])
         
         for command in checkpoint['commands']:
             cli.start(command)
