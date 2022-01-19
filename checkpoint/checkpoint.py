@@ -12,6 +12,9 @@ class Path(BasePath):
         content = collections.defaultdict(lambda: [], content)
         return content
     
+    def save(self, content):
+        return super().save(dict(content))
+    
     @classmethod
     @property
     def checkpoints(cls):
@@ -45,8 +48,8 @@ class Checkpoint:
     def create_path(self):
         name = gui.ask('Give new checkpoint name')
         if name:
-            path = Path.checkpoints / self.categorie / name.lower()
-            path.touch()
+            path = (Path.checkpoints / self.categorie / name.lower()).with_suffix('.yaml')
+            path.touch(exist_ok=True)
         return name
 
 
@@ -62,9 +65,8 @@ class CheckpointManager:
             if checkpoint.path == 'create new checkpoint':
                 checkpoint.path = checkpoint.create_path()
             elif checkpoint.path == 'remove checkpoint':
-                checkpoint.path = 'go'
-                while path := checkpoint.ask_path('Choose checkpoint to remove', 'quit') not in [None, 'quit']:
-                    checkpoint.path.unlink()
+                while (path := checkpoint.ask_path('Choose checkpoint to remove', 'quit')) not in [None, 'quit']:
+                    path.unlink()
                 checkpoint.path = None
             else:
                 CheckpointManager.edit_checkpoint(checkpoint)
