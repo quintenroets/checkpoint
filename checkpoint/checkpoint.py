@@ -128,13 +128,7 @@ class CheckpointManager:
             new_items = cli.get(f'zenity', options)
             
             if new_items:
-                new_items = new_items.split(separator)
-            
-            if new_items:
-                for item in new_items:
-                    if item.endswith('.ipynb'):
-                        new_items.remove(item)
-                        checkpoint['konsole'].append(f'cd \'{Path(item).parent}\'; jn')
+                new_items = new_items.split(separator)            
                 checkpoint['urls'] += new_items
 
         elif item_type in ['url', 'command']:
