@@ -1,5 +1,4 @@
 import collections
-import os
 import sys
 
 import cli
@@ -8,8 +7,8 @@ from plib import Path as BasePath
 
 
 class Path(BasePath):
-    def load(self):
-        content = super().load()
+    def load(self, trusted=False):
+        content = super().load(trusted=trusted)
         content = collections.defaultdict(lambda: [], content)
         return content
 
@@ -25,11 +24,17 @@ class Path(BasePath):
 class Checkpoint:
     def __init__(self, categorie, choose=False):
         self.categorie = categorie
+        self.title = categorie.replace("_", " ")
         self.path = None
         if not choose:
             self.path = CheckpointManager.get_recent_path(categorie)
         if self.path is None:
             self.path = self.ask_path("Choose checkpoint", "edit")
+
+    def ask(self, message, choices=None, options=None):
+        options = options or {}
+        options["title"] = self.title
+        return gui.ask(message, choices=choices, options=options)
 
     def ask_path(self, title, *extra_options):
         extra_options_dict = {o.capitalize(): o for o in extra_options}
@@ -39,7 +44,7 @@ class Checkpoint:
         if not options:
             checkpoint_path = self.create_path()
         else:
-            name = gui.ask(title, options | extra_options_dict)
+            name = self.ask(title, options | extra_options_dict)
             if not name:
                 checkpoint_path = None
             elif name not in extra_options:
@@ -53,7 +58,7 @@ class Checkpoint:
         return checkpoint_path
 
     def create_path(self):
-        name = gui.ask("Give new checkpoint name")
+        name = self.ask("Give new checkpoint name")
         if name:
             path = (Path.checkpoints / self.categorie / name.lower()).with_suffix(
                 ".yaml"
@@ -102,13 +107,13 @@ class CheckpointManager:
             cli.run(command, console=True)
 
     @staticmethod
-    def edit_checkpoint(checkpoint):
+    def edit_checkpoint(checkpoint: Checkpoint):
         content = checkpoint.path.load()
 
         item = "Go"
         while item and item != "Quit":
             values = [v for values in content.values() for v in values]
-            item = gui.ask(
+            item = checkpoint.ask(
                 "Choose item to remove or add new item", ["Add new"] + values + ["Quit"]
             )
             if item == "Add new":
