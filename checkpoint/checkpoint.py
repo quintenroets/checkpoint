@@ -108,6 +108,9 @@ class CheckpointManager:
 
     @staticmethod
     def edit_checkpoint(checkpoint: Checkpoint):
+        if checkpoint.path is None:
+            return
+
         content = checkpoint.path.load()
 
         item = "Go"
