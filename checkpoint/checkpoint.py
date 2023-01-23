@@ -7,13 +7,15 @@ from plib import Path as BasePath
 
 
 class Path(BasePath):
-    def load(self, trusted=False):
-        content = super().load(trusted=trusted)
+    @property
+    def yaml(self):
+        content = super().yaml
         content = collections.defaultdict(lambda: [], content)
         return content
 
-    def save(self, content):
-        return super().save(dict(content))
+    @yaml.setter
+    def yaml(self, content):
+        super().yaml = content
 
     @classmethod
     @property
@@ -92,7 +94,7 @@ class CheckpointManager:
                 CheckpointManager.edit_checkpoint(checkpoint)
 
         if checkpoint.path is not None:
-            content = checkpoint.path.load()
+            content = checkpoint.path.load_yaml()
             if not any([v for v in content.values()]):
                 CheckpointManager.edit_checkpoint(checkpoint)
             CheckpointManager.open_checkpoint(content)
@@ -111,7 +113,7 @@ class CheckpointManager:
         if checkpoint.path is None:
             return
 
-        content = checkpoint.path.load()
+        content = checkpoint.path.load_yaml()
 
         item = "Go"
         while item and item != "Quit":
