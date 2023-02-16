@@ -172,7 +172,7 @@ class CheckpointManager:
 
             if new_items:
                 new_items = new_items.split(separator)
-                checkpoint.urls += new_items
+                checkpoint.urls.update(new_items)
 
         elif item_type in ["url", "command"]:
             item = gui.ask(f"Give {item_type}")
